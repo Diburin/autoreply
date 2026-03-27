@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoReply — Instagram Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f13;
+  --s1: #17171d;
+  --s2: #1e1e26;
+  --s3: #26262f;
+  --border: #2e2e3a;
+  --border2: #3a3a48;
+  --text: #f0eff8;
+  --text2: #9d9baf;
+  --text3: #5a5870;
+  --acc: #6c5ce7;
+  --acc2: #a29bfe;
+  --green: #00b894;
+  --red: #e17055;
+  --amber: #fdcb6e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+header{background:var(--s1);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;letter-spacing:-0.5px}
+.brand span{color:var(--acc2)}
+.header-stats{display:flex;gap:12px}
+.hstat{background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text2)}
+.hstat b{color:var(--text);font-weight:600}
+
+/* SETUP BANNER */
+.setup-banner{background:linear-gradient(135deg,rgba(108,92,231,0.15),rgba(162,155,254,0.08));border:1px solid rgba(108,92,231,0.3);border-radius:14px;padding:20px 24px;margin:20px 24px}
+.setup-banner h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:12px;color:var(--acc2)}
+.setup-steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.setup-steps{grid-template-columns:1fr}}
+.setup-step{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.setup-step .ss-num{font-size:10px;font-weight:600;color:var(--acc2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px}
+.setup-step .ss-title{font-size:13px;font-weight:500;margin-bottom:4px}
+.setup-step .ss-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.setup-step input{width:100%;background:var(--s3);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-top:6px;transition:border-color .15s}
+.setup-step input:focus{border-color:var(--acc)}
+.save-cfg-btn{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:14px}
+.save-cfg-btn:hover{opacity:.85}
+.cfg-saved{display:none;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:var(--green)}
+
+/* MAIN */
+main{display:grid;grid-template-columns:320px 1fr;flex:1;overflow:hidden}
+@media(max-width:800px){main{grid-template-columns:1fr;overflow:visible}}
+
+/* LEFT */
+.left{background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;height:calc(100vh - 57px);position:sticky;top:0;overflow-y:auto}
+@media(max-width:800px){.left{height:auto;position:relative}}
+
+.panel-block{padding:18px 18px;border-bottom:1px solid var(--border)}
+.block-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:10px;font-weight:500}
+
+/* Post selector */
+.post-input-row{display:flex;gap:8px}
+.post-input-row input{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.post-input-row input:focus{border-color:var(--acc)}
+.post-input-row input::placeholder{color:var(--text3)}
+.fetch-btn{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .15s;display:flex;align-items:center;gap:6px}
+.fetch-btn:hover{opacity:.85}
+.fetch-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Tone */
+.tone-wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.tone-btn{background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:7px 4px;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;text-align:center;transition:all .15s}
+.tone-btn:hover{border-color:var(--border2);color:var(--text)}
+.tone-btn.on{background:rgba(108,92,231,.2);border-color:var(--acc);color:var(--acc2)}
+
+/* Extra */
+.extra-ta{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;resize:none;outline:none;min-height:56px;line-height:1.5;transition:border-color .15s}
+.extra-ta:focus{border-color:var(--acc)}
+.extra-ta::placeholder{color:var(--text3)}
+
+/* Filter tabs */
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.filter-tab{background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.filter-tab:hover{color:var(--text);border-color:var(--border2)}
+.filter-tab.on{background:var(--s2);color:var(--text);border-color:var(--border2)}
+
+/* Bottom action */
+.gen-all-wrap{padding:14px 18px}
+.gen-all-btn{width:100%;background:linear-gradient(135deg,var(--acc),#8c7ae6);color:#fff;border:none;border-radius:10px;padding:13px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;letter-spacing:.2px}
+.gen-all-btn:hover{opacity:.88}
+.gen-all-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* RIGHT */
+.right{padding:20px;overflow-y:auto;height:calc(100vh - 57px)}
+@media(max-width:800px){.right{height:auto}}
+
+/* Progress */
+.progress-wrap{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:14px;display:none}
+.progress-wrap.show{display:block}
+.progress-label{font-size:12px;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between}
+.progress-track{height:3px;background:var(--s3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:2px;transition:width .3s}
+
+/* Empty */
+.empty{text-align:center;padding:70px 20px;color:var(--text3)}
+.empty-icon{font-size:48px;margin-bottom:14px}
+.empty h3{font-family:'Syne',sans-serif;font-size:18px;color:var(--text2);margin-bottom:8px}
+.empty p{font-size:13px;line-height:1.6}
+
+/* Comment card */
+.comment-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;animation:fadeUp .2s ease-out}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.comment-card.sent{border-left:3px solid var(--green)}
+.comment-card.liked-card{border-top:2px solid var(--red)}
+
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px 8px;gap:10px}
+.user-info{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.uname{font-size:13px;font-weight:500}
+.umeta{font-size:11px;color:var(--text3);margin-top:1px}
+.card-btns{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:5px;border-radius:6px;transition:background .15s;color:var(--text3);line-height:1}
+.icon-btn:hover{background:var(--s3)}
+.icon-btn.liked{color:#e17055}
+
+.comment-body{padding:0 16px 14px;font-size:14px;color:var(--text2);line-height:1.55}
+
+/* Reply area */
+.reply-area{border-top:1px solid var(--border);background:rgba(0,0,0,.25);padding:12px 16px}
+.reply-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--acc2);margin-bottom:8px;font-weight:600}
+.reply-row{display:flex;gap:8px;align-items:flex-end}
+.reply-ta{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;outline:none;min-height:54px;line-height:1.5;transition:border-color .15s}
+.reply-ta:focus{border-color:var(--acc)}
+.reply-ta::placeholder{color:var(--text3);font-style:italic}
+.reply-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+
+.send-btn{padding:9px 14px;background:var(--green);color:#000;border:none;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+.send-btn:hover{opacity:.85}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;background:var(--s3);color:var(--text3)}
+.send-btn.sending{background:var(--amber);color:#000}
+.send-btn.sent-ok{background:var(--s3);color:var(--green);pointer-events:none}
+
+.regen-btn{padding:9px 14px;background:var(--s2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.regen-btn:hover{border-color:var(--acc2);color:var(--acc2)}
+
+/* Pulse */
+.gen-pulse{display:flex;align-items:center;gap:5px;padding:8px 0 2px;color:var(--text3);font-size:12px}
+.pulse-dot{width:5px;height:5px;border-radius:50%;background:var(--acc);animation:pulse 1s infinite}
+.pulse-dot:nth-child(2){animation-delay:.2s}
+.pulse-dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:11px 18px;font-size:13px;z-index:99;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none;max-width:320px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{border-color:rgba(0,184,148,.4);color:var(--green)}
+.toast.error{border-color:rgba(225,112,85,.4);color:var(--red)}
+
+/* Toolbar */
+.feed-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.feed-count{font-size:12px;color:var(--text3)}
+.toolbar-right{display:flex;gap:6px}
+.sm-btn{background:var(--s1);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:11px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.sm-btn:hover{color:var(--text);border-color:var(--border2)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Auto<span>Reply</span> — Instagram Manager</div>
+  <div class="header-stats">
+    <div class="hstat">Commenti: <b id="s-total">0</b></div>
+    <div class="hstat">Risposte: <b id="s-replied">0</b></div>
+    <div class="hstat">Inviati: <b id="s-sent">0</b></div>
+  </div>
+</header>
+
+<!-- SETUP BANNER -->
+<div class="setup-banner" id="setup-banner">
+  <h2>⚙️ Configurazione iniziale — fai questo una volta sola</h2>
+  <div class="setup-steps">
+    <div class="setup-step">
+      <div class="ss-num">Step 1</div>
+      <div class="ss-title">Webhook URL per leggere i commenti</div>
+      <div class="ss-desc">Crea su Make.com uno scenario "Fetch Comments" e copia qui il webhook URL (spiegazione sotto).</div>
+      <input type="text" id="cfg-fetch" placeholder="https://hook.eu1.make.com/xxx..." />
+    </div>
+    <div class="setup-step">
+      <div class="ss-num">Step 2</div>
+      <div class="ss-title">Webhook URL per inviare le risposte</div>
+      <div class="ss-desc">Crea su Make.com uno scenario "Send Reply" e copia qui il webhook URL.</div>
+      <input type="text" id="cfg-reply" placeholder="https://hook.eu1.make.com/yyy..." />
+    </div>
+    <div class="setup-step">
+      <div class="ss-num">Step 3</div>
+      <div class="ss-title">Chiave API Claude</div>
+      <div class="ss-desc">Vai su console.anthropic.com → API Keys → copia la tua chiave.</div>
+      <input type="password" id="cfg-claude" placeholder="sk-ant-api03-..." />
+    </div>
+    <div class="setup-step">
+      <div class="ss-num">Come creare i 2 scenari Make</div>
+      <div class="ss-title">Istruzioni Make.com</div>
+      <div class="ss-desc">
+        <strong>Scenario 1 (Fetch Comments):</strong><br>
+        Webhook → Instagram for Business "Get Comments" → Webhook Response<br><br>
+        <strong>Scenario 2 (Send Reply):</strong><br>
+        Webhook → Instagram for Business "Create Reply" → fine
+      </div>
+    </div>
+  </div>
+  <button class="save-cfg-btn" onclick="saveConfig()">✓ Salva configurazione</button>
+  <div class="cfg-saved" id="cfg-saved">✓ Configurazione salvata! Puoi nascondere questo pannello.</div>
+</div>
+
+<main>
+  <!-- LEFT PANEL -->
+  <div class="left">
+    <div class="panel-block">
+      <div class="block-label">Seleziona post Instagram</div>
+      <div class="post-input-row">
+        <input type="text" id="post-url" placeholder="URL del post o ID..." />
+        <button class="fetch-btn" id="fetch-btn" onclick="fetchComments()">
+          <span>📥</span> Carica
+        </button>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--text3)">
+        Es: https://www.instagram.com/p/ABC123/
+      </div>
+    </div>
+
+    <div class="panel-block">
+      <div class="block-label">Tono AI</div>
+      <div class="tone-wrap" id="tone-wrap">
+        <div class="tone-btn on" data-t="amichevole">😊 Amichevole</div>
+        <div class="tone-btn" data-t="divertente">😂 Divertente</div>
+        <div class="tone-btn" data-t="empatico">💜 Empatico</div>
+        <div class="tone-btn" data-t="energico">🔥 Energico</div>
+        <div class="tone-btn" data-t="professionale">💼 Prof.</div>
+        <div class="tone-btn" data-t="formale">🎩 Formale</div>
+      </div>
+    </div>
+
+    <div class="panel-block">
+      <div class="block-label">Istruzioni extra</div>
+      <textarea class="extra-ta" id="extra" placeholder="Es: menziona sempre @mioprofilo, usa emoji, rispondi in inglese..."></textarea>
+    </div>
+
+    <div class="panel-block">
+      <div class="block-label">Filtra</div>
+      <div class="filter-row">
+        <button class="filter-tab on" onclick="setFilter('all',this)">Tutti</button>
+        <button class="filter-tab" onclick="setFilter('pending',this)">Da rispondere</button>
+        <button class="filter-tab" onclick="setFilter('sent',this)">✓ Inviati</button>
+      </div>
+    </div>
+
+    <div style="flex:1"></div>
+
+    <div class="gen-all-wrap">
+      <button class="gen-all-btn" id="gen-all-btn" onclick="generateAll()">
+        ⚡ Genera tutte le risposte AI
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right">
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-label">
+        <span id="prog-text">Generando risposte...</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div id="feed-toolbar" class="feed-toolbar" style="display:none">
+      <div class="feed-count" id="feed-count"></div>
+      <div class="toolbar-right">
+        <button class="sm-btn" onclick="likeAll()">❤️ Like a tutti</button>
+        <button class="sm-btn" onclick="clearSent()">🗑 Rimuovi inviati</button>
+      </div>
+    </div>
+
+    <div id="feed"></div>
+
+    <div id="empty" class="empty">
+      <div class="empty-icon">📱</div>
+      <h3>Nessun commento caricato</h3>
+      <p>Incolla l'URL di un post Instagram nel pannello a sinistra<br>e clicca <strong>Carica</strong> per vedere tutti i commenti.</p>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS=['#e17055','#6c5ce7','#00b894','#fdcb6e','#0984e3','#fd79a8','#00cec9','#e84393'];
+let comments=[], currentFilter='all', currentTone='amichevole';
+let cfgFetch='', cfgReply='', cfgClaude='';
+
+const toneDesc={
+  amichevole:'amichevole e caloroso, usa 1-2 emoji, sii genuino e personale',
+  divertente:'divertente e leggero con umorismo, usa 2-3 emoji',
+  empatico:'empatico e comprensivo, fai sentire la persona speciale, emoji cuore',
+  energico:'energico ed entusiasta, usa emoji di fuoco e forza',
+  professionale:'professionale e cortese, poche emoji, tono curato',
+  formale:'formale e rispettoso, nessuna emoji, linguaggio impeccabile'
+};
+
+const CORS_PROXY = 'https://corsproxy.io/?';
+const DEFAULT_FETCH = 'https://hook.eu2.make.com/ptmho59h1q6q7m2l06cfx7g6ul5t9vku';
+const DEFAULT_REPLY = 'https://hook.eu2.make.com/sf9cudgjfh92nnlb8615xtd2k8kolt4g';
+
+// Load config
+function loadConfig(){
+  cfgFetch = localStorage.getItem('mc_fetch')||DEFAULT_FETCH;
+  cfgReply = localStorage.getItem('mc_reply')||DEFAULT_REPLY;
+  cfgClaude = localStorage.getItem('mc_claude')||'';
+  document.getElementById('cfg-fetch').value=cfgFetch;
+  document.getElementById('cfg-reply').value=cfgReply;
+  if(cfgClaude) document.getElementById('cfg-claude').value=cfgClaude;
+  if(cfgFetch && cfgReply && cfgClaude){
+    document.getElementById('setup-banner').style.display='none';
+  }
+}
+
+function saveConfig(){
+  cfgFetch = document.getElementById('cfg-fetch').value.trim();
+  cfgReply = document.getElementById('cfg-reply').value.trim();
+  cfgClaude = document.getElementById('cfg-claude').value.trim();
+  if(!cfgClaude.startsWith('sk-ant')){ showToast('Chiave Claude non valida','error'); return; }
+  localStorage.setItem('mc_fetch', cfgFetch);
+  localStorage.setItem('mc_reply', cfgReply);
+  localStorage.setItem('mc_claude', cfgClaude);
+  document.getElementById('cfg-saved').style.display='flex';
+  showToast('✓ Configurazione salvata!','success');
+}
+
+// Tone
+document.getElementById('tone-wrap').addEventListener('click',e=>{
+  const btn=e.target.closest('.tone-btn'); if(!btn) return;
+  document.querySelectorAll('.tone-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  currentTone=btn.dataset.t;
+});
+
+// Fetch comments from Make webhook
+async function fetchComments(){
+  if(!cfgFetch){ showToast('Prima configura il webhook Fetch in alto!','error'); return; }
+  const url = document.getElementById('post-url').value.trim();
+  if(!url){ showToast('Incolla l\'URL del post!','error'); return; }
+
+  const btn=document.getElementById('fetch-btn');
+  btn.disabled=true; btn.innerHTML='<span>⏳</span> Caricando...';
+
+  try {
+    const proxyUrl1 = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(cfgFetch);
+    const res = await fetch(proxyUrl1, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({post_url: url, post_id: extractPostId(url)})
+    });
+
+    if(!res.ok) throw new Error('Errore Make: '+res.status);
+    const data = await res.json();
+
+    // Expect array of {id, username, text, timestamp}
+    const raw = Array.isArray(data) ? data : (data.comments || data.data || []);
+
+    if(!raw.length){ showToast('Nessun commento trovato su questo post.','error'); return; }
+
+    // Preserve existing replies if same comment
+    const existing = {};
+    comments.forEach(c=>{ existing[c.id]=c; });
+
+    comments = raw.map(c=>({
+      id: c.id || c.comment_id || uid(),
+      user: c.username || c.from?.username || 'utente',
+      text: c.text || c.message || '',
+      timestamp: c.timestamp || '',
+      liked: existing[c.id]?.liked||false,
+      reply: existing[c.id]?.reply||'',
+      sent: existing[c.id]?.sent||false
+    }));
+
+    renderFeed();
+    updateStats();
+    showToast(`✓ ${comments.length} commenti caricati!`,'success');
+  } catch(e){
+    // DEMO MODE if no webhook configured
+    if(cfgFetch.includes('demo') || !cfgFetch){
+      loadDemoComments();
+    } else {
+      showToast('Errore: '+e.message,'error');
+    }
+  } finally {
+    btn.disabled=false; btn.innerHTML='<span>📥</span> Carica';
+  }
+}
+
+function extractPostId(url){
+  const m = url.match(/\/p\/([A-Za-z0-9_-]+)/);
+  return m ? m[1] : url;
+}
+
+function loadDemoComments(){
+  const demos=[
+    {id:'c1',user:'sara_fiore98',text:'Questo video è semplicemente PERFETTO!! Grazie per quello che fai ogni giorno ❤️'},
+    {id:'c2',user:'marco.vita',text:'Dove hai comprato quella giacca?? La voglio assolutamente!'},
+    {id:'c3',user:'giugiupower',text:'Non ci credo ancora... riesci sempre a sorprendermi 🤯'},
+    {id:'c4',user:'ale_creator',text:'Puoi fare un tutorial completo su questo argomento?'},
+    {id:'c5',user:'luna_bella93',text:'Sei la mia fonte di ispirazione ogni singolo giorno 💪'},
+    {id:'c6',user:'dani_pop',text:'Quanto tempo ci hai messo a preparare tutto questo?'},
+    {id:'c7',user:'teo.official',text:'Collaborazione quando?? Vi adoro insieme!'},
+    {id:'c8',user:'vale_xyz',text:'Queste informazioni mi hanno salvato letteralmente la vita grazie 🙏'},
+    {id:'c9',user:'ross_m_99',text:'Ho condiviso con tutti i miei amici, troppo bello!'},
+    {id:'c10',user:'fran.creator',text:'Finalmente qualcuno che spiega le cose in modo chiaro 🔥'},
+  ];
+  comments=demos.map(d=>({...d,liked:false,reply:'',sent:false}));
+  renderFeed(); updateStats();
+  showToast('📋 Commenti demo caricati (webhook non configurato)','success');
+}
+
+// Claude API
+async function callClaude(text){
+  if(!cfgClaude) throw new Error('Chiave Claude non configurata');
+  const extra=document.getElementById('extra').value.trim();
+  const prompt=`Sei il social media manager di un profilo Instagram popolare. Rispondi al commento in modo ${toneDesc[currentTone]}.${extra?' Istruzioni extra: '+extra+'.':''} Scrivi SOLO la risposta, niente altro, max 2 righe.\n\nCommento: "${text}"`;
+
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':cfgClaude,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,messages:[{role:'user',content:prompt}]})
+  });
+  if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'Errore API'); }
+  const d=await res.json();
+  return d.content?.[0]?.text?.trim()||'';
+}
+
+// Send reply via Make webhook
+async function sendReply(commentId, replyText, username){
+  if(!cfgReply) throw new Error('Webhook Reply non configurato');
+  const proxyUrl2 = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(cfgReply);
+  const res=await fetch(proxyUrl2,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({comment_id:commentId, reply_text:replyText, username})
+  });
+  if(!res.ok) throw new Error('Errore Make Send: '+res.status);
+  return true;
+}
+
+async function generateAll(){
+  if(!cfgClaude){ showToast('Configura la chiave Claude in alto!','error'); return; }
+  const pending=comments.filter(c=>!c.reply);
+  if(!pending.length){ showToast('Tutte le risposte sono già state generate!'); return; }
+
+  const btn=document.getElementById('gen-all-btn');
+  btn.disabled=true; btn.textContent='⏳ Generando...';
+
+  const wrap=document.getElementById('progress-wrap');
+  const fill=document.getElementById('prog-fill');
+  const pText=document.getElementById('prog-text');
+  const pPct=document.getElementById('prog-pct');
+  wrap.classList.add('show');
+
+  pending.forEach(c=>{ c.reply='__gen__'; });
+  renderFeed();
+
+  let done=0;
+  for(const c of pending){
+    pText.textContent=`Generando ${done+1} di ${pending.length}...`;
+    try{ c.reply=await callClaude(c.text); }
+    catch(e){ c.reply=''; showToast('Errore: '+e.message,'error'); }
+    done++;
+    const pct=Math.round(done/pending.length*100);
+    fill.style.width=pct+'%'; pPct.textContent=pct+'%';
+
+    // Update single card reply section
+    const card=document.getElementById('card-'+c.id);
+    if(card){ updateCardReply(card,c); }
+    updateStats();
+  }
+
+  wrap.classList.remove('show'); fill.style.width='0%';
+  btn.disabled=false; btn.textContent='⚡ Genera tutte le risposte AI';
+  showToast(`✓ ${done} risposte generate! Ora puoi inviarle.`,'success');
+}
+
+async function generateOne(id){
+  const c=comments.find(c=>c.id===id); if(!c) return;
+  c.reply='__gen__';
+  const card=document.getElementById('card-'+id);
+  if(card){ updateCardReply(card,c); }
+  try{ c.reply=await callClaude(c.text); }
+  catch(e){ c.reply=''; showToast('Errore: '+e.message,'error'); }
+  if(card){ updateCardReply(card,c); }
+  updateStats();
+}
+
+async function handleSend(id){
+  const c=comments.find(c=>c.id===id); if(!c||!c.reply) return;
+  const btn=document.querySelector(`[data-send="${id}"]`);
+  if(btn){ btn.disabled=true; btn.className='send-btn sending'; btn.textContent='📤 Invio...'; }
+
+  try{
+    await sendReply(c.id, c.reply, c.user);
+    c.sent=true;
+    const card=document.getElementById('card-'+id);
+    if(card){ card.classList.add('sent'); }
+    if(btn){ btn.className='send-btn sent-ok'; btn.textContent='✓ Inviato'; }
+    updateStats();
+    showToast(`✓ Risposta a @${c.user} inviata su Instagram!`,'success');
+  } catch(e){
+    if(btn){ btn.disabled=false; btn.className='send-btn'; btn.textContent='📤 Invia'; }
+    showToast('Errore invio: '+e.message+' (Controlla webhook Reply su Make)','error');
+  }
+}
+
+function updateCardReply(card, c){
+  const ra=card.querySelector('.reply-area');
+  if(!ra) return;
+  if(c.reply==='__gen__'){
+    ra.querySelector('.reply-row')&&(ra.querySelector('.reply-row').innerHTML=`<div class="gen-pulse"><div class="pulse-dot"></div><div class="pulse-dot"></div><div class="pulse-dot"></div><span>Generando...</span></div>`);
+    return;
+  }
+  ra.innerHTML=`
+    <div class="reply-label">↩ Risposta AI — modificala se vuoi, poi invia</div>
+    <div class="reply-row">
+      <textarea class="reply-ta" oninput="updateReply('${c.id}',this.value)">${esc(c.reply)}</textarea>
+      <div class="reply-actions">
+        <button class="send-btn${c.sent?' sent-ok':''}" data-send="${c.id}" onclick="handleSend('${c.id}')" ${c.sent?'disabled':''}>${c.sent?'✓ Inviato':'📤 Invia'}</button>
+        <button class="regen-btn" onclick="generateOne('${c.id}')">🔄 Rigenera</button>
+      </div>
+    </div>`;
+}
+
+function updateReply(id,val){ const c=comments.find(c=>c.id===id); if(c) c.reply=val; }
+function toggleLike(id){
+  const c=comments.find(c=>c.id===id); if(!c) return;
+  c.liked=!c.liked;
+  const btn=document.querySelector(`[data-like="${id}"]`);
+  if(btn){ btn.textContent=c.liked?'❤️':'🤍'; btn.classList.toggle('liked',c.liked); }
+  updateStats();
+}
+function removeComment(id){ comments=comments.filter(c=>c.id!==id); document.getElementById('card-'+id)?.remove(); updateStats(); updateFeedToolbar(); }
+
+function likeAll(){
+  comments.forEach(c=>{ if(!c.liked){ c.liked=true; const b=document.querySelector(`[data-like="${c.id}"]`); if(b){b.textContent='❤️';b.classList.add('liked');} } });
+  updateStats(); showToast('❤️ Like messo a tutti i commenti!','success');
+}
+function clearSent(){ comments=comments.filter(c=>!c.sent); renderFeed(); updateStats(); }
+
+function setFilter(f,el){ currentFilter=f; document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderFeed(); }
+
+function renderFeed(){
+  const feed=document.getElementById('feed');
+  const empty=document.getElementById('empty');
+  const tb=document.getElementById('feed-toolbar');
+
+  let list=comments;
+  if(currentFilter==='pending') list=comments.filter(c=>!c.sent);
+  if(currentFilter==='sent') list=comments.filter(c=>c.sent);
+
+  if(!list.length){
+    feed.innerHTML='';
+    empty.style.display='block';
+    tb.style.display='none';
+    return;
+  }
+  empty.style.display='none';
+  tb.style.display='flex';
+  feed.innerHTML=list.map(c=>cardHTML(c)).join('');
+  updateFeedToolbar();
+}
+
+function updateFeedToolbar(){
+  const replied=comments.filter(c=>c.reply&&c.reply!=='__gen__').length;
+  document.getElementById('feed-count').textContent=`${comments.length} commenti · ${replied} risposte generate`;
+}
+
+function cardHTML(c){
+  const col=COLORS[c.user.charCodeAt(0)%COLORS.length];
+  const letter=c.user[0].toUpperCase();
+  let replyHTML='';
+  if(c.reply==='__gen__'){
+    replyHTML=`<div class="reply-area"><div class="reply-label">↩ Risposta AI</div><div class="gen-pulse"><div class="pulse-dot"></div><div class="pulse-dot"></div><div class="pulse-dot"></div><span>Generando...</span></div></div>`;
+  } else if(c.reply){
+    replyHTML=`<div class="reply-area">
+      <div class="reply-label">↩ Risposta AI — modificala se vuoi, poi invia</div>
+      <div class="reply-row">
+        <textarea class="reply-ta" oninput="updateReply('${c.id}',this.value)">${esc(c.reply)}</textarea>
+        <div class="reply-actions">
+          <button class="send-btn${c.sent?' sent-ok':''}" data-send="${c.id}" onclick="handleSend('${c.id}')" ${c.sent?'disabled':''}>${c.sent?'✓ Inviato':'📤 Invia'}</button>
+          <button class="regen-btn" onclick="generateOne('${c.id}')">🔄 Rigenera</button>
+        </div>
+      </div>
+    </div>`;
+  } else {
+    replyHTML=`<div class="reply-area">
+      <div class="reply-row" style="padding:2px 0">
+        <textarea class="reply-ta" placeholder="Clicca ⚡ Genera o attendi la generazione automatica..." oninput="updateReply('${c.id}',this.value)"></textarea>
+        <div class="reply-actions">
+          <button class="send-btn" data-send="${c.id}" onclick="generateOne('${c.id}').then(()=>{})" style="background:var(--acc)">⚡ Genera</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  return `<div class="comment-card${c.sent?' sent':''}${c.liked?' liked-card':''}" id="card-${c.id}">
+    <div class="card-header">
+      <div class="user-info">
+        <div class="avatar" style="background:${col}22;color:${col};border:1px solid ${col}44">${letter}</div>
+        <div><div class="uname">@${esc(c.user)}</div><div class="umeta">Instagram · ${c.timestamp||'oggi'}</div></div>
+      </div>
+      <div class="card-btns">
+        <button class="icon-btn${c.liked?' liked':''}" data-like="${c.id}" onclick="toggleLike('${c.id}')" title="Like">${c.liked?'❤️':'🤍'}</button>
+        <button class="icon-btn" onclick="removeComment('${c.id}')" title="Rimuovi">✕</button>
+      </div>
+    </div>
+    <div class="comment-body">${esc(c.text)}</div>
+    ${replyHTML}
+  </div>`;
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+function updateStats(){
+  document.getElementById('s-total').textContent=comments.length;
+  document.getElementById('s-replied').textContent=comments.filter(c=>c.reply&&c.reply!=='__gen__').length;
+  document.getElementById('s-sent').textContent=comments.filter(c=>c.sent).length;
+}
+
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(type?' '+type:'');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// Init
+loadConfig();
+
+// Demo mode: if no webhooks, load demo on page load after 500ms
+setTimeout(()=>{
+  if(!cfgFetch && !cfgReply){
+    document.getElementById('post-url').value='https://www.instagram.com/p/DEMO123/';
+  }
+},500);
+</script>
+</body>
+</html>
